@@ -1,11 +1,12 @@
 package repos;
 
-import modelos.Oficina;
+import entidades.Oficina;
 import util.ConexionBD;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class OficinaRepoImpl implements RepoCRUD<Oficina, String> {
     private Connection obtenerConexion() throws SQLException {
@@ -30,19 +31,20 @@ public class OficinaRepoImpl implements RepoCRUD<Oficina, String> {
     }
 
     @Override
-    public Oficina obtenerPorId(String id) {
-        Oficina oficina;
+    public Optional<Oficina> obtenerPorId(String id) {
         String query = "SELECT * FROM oficina WHERE codigo_oficina = ?";
         try(PreparedStatement stmt = obtenerConexion().prepareStatement(query)) {
             stmt.setString(1, id);
             ResultSet rs = stmt.executeQuery();
-            rs.next();
-            oficina = cargarOficina(rs);
+            if (rs.next()) {
+                return Optional.of(cargarOficina(rs));
+            } else {
+                return Optional.empty();
+            }
         }
         catch (Exception e){
             throw new RuntimeException("Error al obtener la oficina por id", e);
         }
-        return oficina;
     }
 
     @Override

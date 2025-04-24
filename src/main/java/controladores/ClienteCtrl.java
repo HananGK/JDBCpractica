@@ -1,10 +1,11 @@
 package controladores;
 
-import modelos.Cliente;
+import entidades.Cliente;
 import repos.ClienteRepoImpl;
 
 import java.sql.SQLException;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Scanner;
 
 public class ClienteCtrl {
@@ -55,98 +56,94 @@ public class ClienteCtrl {
         repoCli.crear(nuevo);
     }
 
+    public void leerCliente(ClienteRepoImpl repoCli, Scanner sc) throws SQLException {
+        System.out.println("Introduzca el código del cliente a buscar: ");
+        int id = sc.nextInt();
+        sc.nextLine();
+        Optional<Cliente> cliente = repoCli.obtenerPorId(id);
+        if(cliente.isPresent()){
+            Cliente cli = cliente.get();
+            System.out.printf("\nNombre [%s] Dirección1 [%s] Dirección 2 [%s] Ciudad [%s] CP [%s]", cli.getNombreCliente(),
+                    cli.getLineaDireccion1(), cli.getLineaDireccion2(), cli.getCiudad(), cli.getCodigoPostal());
+        } else {
+            System.out.println("No existe el cliente con el código de cliente " + id);
+        }
+    }
+
     public static void modificarCliente(ClienteRepoImpl repoCli, Scanner sc){
         System.out.println("-------------- Modificar cliente --------------");
         System.out.println("Código del cliente a editar: ");
         int id = sc.nextInt();
         sc.nextLine();
-        Cliente cliente = repoCli.obtenerPorId(id);
+        Optional<Cliente> cliente = repoCli.obtenerPorId(id);
         if (cliente != null) {
+            Cliente cli = cliente.get();
             System.out.println("Cliente encontrado:");
-            System.out.println("1. Código Cliente: " + cliente.getCodigoCliente());
-            System.out.println("2. Nombre Cliente: " + cliente.getNombreCliente());
-            System.out.println("3. Nombre Contacto: " + cliente.getNombreContacto());
-            System.out.println("4. Apellido Contacto: " + cliente.getApellidoContacto());
-            System.out.println("5. Teléfono: " + cliente.getTelefono());
-            System.out.println("6. Fax: " + cliente.getFax());
-            System.out.println("7. Línea Dirección 1: " + cliente.getLineaDireccion1());
-            System.out.println("8. Línea Dirección 2: " + cliente.getLineaDireccion2());
-            System.out.println("9. Ciudad: " + cliente.getCiudad());
-            System.out.println("10. Región: " + cliente.getRegion());
-            System.out.println("11. Pais: " + cliente.getPais());
-            System.out.println("12. Código postal: " + cliente.getCodigoPostal());
-            System.out.println("13. Código empleado representante de ventas: " + cliente.getCodigoEmpleadoRepVentas());
-            System.out.println("14. Límite crédito: " + cliente.getLimiteCredito());
+            System.out.println("0 - Terminar las modificaciones");
+            System.out.println(cli.toFicha());
 
-            System.out.println("\nIndique el número del campo que desea modificar: ");
-            int numCampo = sc.nextInt();
-            sc.nextLine();
-            System.out.println("Introduzca el nuevo valor: ");
-            String nuevoValor = sc.nextLine();
-            switch (numCampo) {
-                case 1:
-                    cliente.setCodigoCliente(Integer.parseInt(nuevoValor));
-                    break;
-                case 2:
-                    cliente.setNombreCliente(nuevoValor);
-                    break;
-                case 3:
-                    cliente.setNombreContacto(nuevoValor);
-                    break;
-                case 4:
-                    cliente.setApellidoContacto(nuevoValor);
-                    break;
-                case 5:
-                    cliente.setTelefono(nuevoValor);
-                    break;
-                case 6:
-                    cliente.setFax(nuevoValor);
-                    break;
-                case 7:
-                    cliente.setLineaDireccion1(nuevoValor);
-                    break;
-                case 8:
-                    cliente.setLineaDireccion2(nuevoValor);
-                    break;
-                case 9:
-                    cliente.setCiudad(nuevoValor);
-                    break;
-                case 10:
-                    cliente.setRegion(nuevoValor);
-                    break;
-                case 11:
-                    cliente.setPais(nuevoValor);
-                    break;
-                case 12:
-                    cliente.setCodigoPostal(nuevoValor);
-                    break;
-                case 13:
-                    cliente.setCodigoEmpleadoRepVentas(Integer.parseInt(nuevoValor));
-                    break;
-                case 14:
-                    cliente.setLimiteCredito(Float.parseFloat(nuevoValor));
-                    break;
-                default:
-                    System.out.println("Opción no válida.");
-                    break;
+            boolean flag = true;
+            while(flag){
+                System.out.println("\nIndique el número del campo que desea modificar: ");
+                int numCampo = sc.nextInt();
+                sc.nextLine();
+                if (numCampo!=0){
+                    System.out.println("Introduzca el nuevo valor: ");
+                    String nuevoValor = sc.nextLine();
+                    switch (numCampo) {
+                        case 1:
+                            System.out.println("No se puede cambiar el código del cliente.");
+                            break;
+                        case 2:
+                            cli.setNombreCliente(nuevoValor);
+                            break;
+                        case 3:
+                            cli.setNombreContacto(nuevoValor);
+                            break;
+                        case 4:
+                            cli.setApellidoContacto(nuevoValor);
+                            break;
+                        case 5:
+                            cli.setTelefono(nuevoValor);
+                            break;
+                        case 6:
+                            cli.setFax(nuevoValor);
+                            break;
+                        case 7:
+                            cli.setLineaDireccion1(nuevoValor);
+                            break;
+                        case 8:
+                            cli.setLineaDireccion2(nuevoValor);
+                            break;
+                        case 9:
+                            cli.setCiudad(nuevoValor);
+                            break;
+                        case 10:
+                            cli.setRegion(nuevoValor);
+                            break;
+                        case 11:
+                            cli.setPais(nuevoValor);
+                            break;
+                        case 12:
+                            cli.setCodigoPostal(nuevoValor);
+                            break;
+                        case 13:
+                            cli.setCodigoEmpleadoRepVentas(Integer.parseInt(nuevoValor));
+                            break;
+                        case 14:
+                            cli.setLimiteCredito(Float.parseFloat(nuevoValor));
+                            break;
+                        default:
+                            System.out.println("Opción no válida.");
+                            break;
+                    }
+                } else {
+                    flag = false;
+                }
             }
-
-            repoCli.actualizar(cliente);
+            repoCli.actualizar(cli);
             System.out.println("\nCliente modificado:");
-            System.out.println("1. Código Cliente: " + cliente.getCodigoCliente());
-            System.out.println("2. Nombre Cliente: " + cliente.getNombreCliente());
-            System.out.println("3. Nombre Contacto: " + cliente.getNombreContacto());
-            System.out.println("4. Apellido Contacto: " + cliente.getApellidoContacto());
-            System.out.println("5. Teléfono: " + cliente.getTelefono());
-            System.out.println("6. Fax: " + cliente.getFax());
-            System.out.println("7. Línea Dirección 1: " + cliente.getLineaDireccion1());
-            System.out.println("8. Línea Dirección 2: " + cliente.getLineaDireccion2());
-            System.out.println("9. Ciudad: " + cliente.getCiudad());
-            System.out.println("10. Región: " + cliente.getRegion());
-            System.out.println("11. Pais: " + cliente.getPais());
-            System.out.println("12. Código postal: " + cliente.getCodigoPostal());
-            System.out.println("13. Código empleado representante de ventas: " + cliente.getCodigoEmpleadoRepVentas());
-            System.out.println("14. Límite crédito: " + cliente.getLimiteCredito());
+            System.out.println(cli.toFicha());
 
         } else {
             System.out.println("No se encontró ningún cliente con ese código.");
@@ -157,7 +154,7 @@ public class ClienteCtrl {
         System.out.print("Introduce el código del cliente a eliminar: ");
         int id = sc.nextInt();
         sc.nextLine();
-        Cliente cli = repoCli.obtenerPorId(id);
+        Optional<Cliente> cli = repoCli.obtenerPorId(id);
         if (cli != null) {
             repoCli.eliminar(id);
         } else {

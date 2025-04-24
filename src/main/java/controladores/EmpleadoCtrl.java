@@ -1,8 +1,10 @@
 package controladores;
 
-import modelos.Empleado;
+import entidades.Empleado;
 import repos.EmpleadoRepoImpl;
 
+import java.sql.SQLException;
+import java.util.Optional;
 import java.util.Scanner;
 
 public class EmpleadoCtrl {
@@ -37,73 +39,79 @@ public class EmpleadoCtrl {
         repoEmp.crear(nuevo);
     }
 
+    public void leerEmpleado(EmpleadoRepoImpl repoEmp, Scanner sc) throws SQLException {
+        System.out.println("Introduzca el código del empleado a buscar: ");
+        int id = sc.nextInt();
+        sc.nextLine();
+        Optional<Empleado> empleado = repoEmp.obtenerPorId(id);
+        if (empleado.isPresent()){
+            Empleado emp = empleado.get();
+            System.out.printf("\nNombre [%s] Apellido1 [%s] Apellido2 [%s] Email [%s] Puesto [%s]", emp.getNombre(), emp.getApellido1(), emp.getApellido2(), emp.getEmail(), emp.getPuesto());
+        } else {
+            System.out.println("No existe el empleado con el código de empleado " + id);
+        }
+    }
+
     public static void modificarEmpleado(EmpleadoRepoImpl repoEmp, Scanner sc) {
         System.out.println("-------------- Modificar empleado ------------");
         System.out.println("Código del empleado a editar: ");
         int id =  sc.nextInt();
         sc.nextLine();
-        Empleado empleado = repoEmp.obtenerPorId(id);
+        Optional<Empleado> empleado = repoEmp.obtenerPorId(id);
 
         if (empleado != null) {
+            Empleado emp = empleado.get();
             System.out.println("Empleado encontrado: ");
-            System.out.println("1. Código empleado: " + empleado.getCodigoEmpleado());
-            System.out.println("2. Nombre del empleado: " + empleado.getNombre());
-            System.out.println("3. Primer apellido: " + empleado.getApellido1());
-            System.out.println("4. Segundo apellido: " + empleado.getApellido2());
-            System.out.println("5. Extension: " + empleado.getExtension());
-            System.out.println("6. Email: " + empleado.getEmail());
-            System.out.println("7. Código oficina: " + empleado.getCodigoOficina());
-            System.out.println("8. Código jefe: " + empleado.getCodigoJefe());
-            System.out.println("9. Puesto: " + empleado.getPuesto());
+            System.out.println("0 - Terminar las modificaciones");
+            System.out.println(emp.toFicha());
 
-            System.out.println("\nIndique el número de campo que desea modificar: ");
-            int numCampo = sc.nextInt();
-            sc.nextLine();
-            System.out.println("Introduzca el nuevo valor: ");
-            String nuevoValor = sc.nextLine();
-            switch (numCampo) {
-                case 1:
-                    empleado.setCodigoEmpleado(Integer.parseInt(nuevoValor));
-                    break;
-                case 2:
-                    empleado.setNombre(nuevoValor);
-                    break;
-                case 3:
-                    empleado.setApellido1(nuevoValor);
-                    break;
-                case 4:
-                    empleado.setApellido2(nuevoValor);
-                    break;
-                case 5:
-                    empleado.setExtension(nuevoValor);
-                    break;
-                case 6:
-                    empleado.setEmail(nuevoValor);
-                    break;
-                case 7:
-                    empleado.setCodigoOficina(nuevoValor);
-                    break;
-                case 8:
-                    empleado.setCodigoJefe(Integer.parseInt(nuevoValor));
-                    break;
-                case 9:
-                    empleado.setPuesto(nuevoValor);
-                    break;
-                default:
-                    System.out.println("Opción no válida");
-                    break;
+            boolean flag = true;
+            while(flag){
+                System.out.println("\nIndique el número de campo que desea modificar: ");
+                int numCampo = sc.nextInt();
+                sc.nextLine();
+                if (numCampo != 0) {
+                    System.out.println("Introduzca el nuevo valor: ");
+                    String nuevoValor = sc.nextLine();
+                    switch (numCampo) {
+                        case 1:
+                            emp.setCodigoEmpleado(Integer.parseInt(nuevoValor));
+                            break;
+                        case 2:
+                            emp.setNombre(nuevoValor);
+                            break;
+                        case 3:
+                            emp.setApellido1(nuevoValor);
+                            break;
+                        case 4:
+                            emp.setApellido2(nuevoValor);
+                            break;
+                        case 5:
+                            emp.setExtension(nuevoValor);
+                            break;
+                        case 6:
+                            emp.setEmail(nuevoValor);
+                            break;
+                        case 7:
+                            emp.setCodigoOficina(nuevoValor);
+                            break;
+                        case 8:
+                            emp.setCodigoJefe(Integer.parseInt(nuevoValor));
+                            break;
+                        case 9:
+                            emp.setPuesto(nuevoValor);
+                            break;
+                        default:
+                            System.out.println("Opción no válida");
+                            break;
+                    }
+                } else {
+                    flag = false;
+                }
             }
-            repoEmp.actualizar(empleado);
+            repoEmp.actualizar(emp);
             System.out.println("\nEmpleado modificado:");
-            System.out.println("1. Código empleado: " + empleado.getCodigoEmpleado());
-            System.out.println("2. Nombre del empleado: " + empleado.getNombre());
-            System.out.println("3. Primer apellido: " + empleado.getApellido1());
-            System.out.println("4. Segundo apellido: " + empleado.getApellido2());
-            System.out.println("5. Extension: " + empleado.getExtension());
-            System.out.println("6. Email: " + empleado.getEmail());
-            System.out.println("7. Código oficina: " + empleado.getCodigoOficina());
-            System.out.println("8. Código jefe: " + empleado.getCodigoJefe());
-            System.out.println("9. Puesto: " + empleado.getPuesto());
+            System.out.println(emp.toFicha());
         } else {
             System.out.println("No se encontró ningún empleado con ese código");
         }
@@ -113,7 +121,7 @@ public class EmpleadoCtrl {
         System.out.println("Introduce el código del empleado a eliminar: ");
         int id = sc.nextInt();
         sc.nextLine();
-        Empleado emp  = repoEmp.obtenerPorId(id);
+        Optional<Empleado> emp = repoEmp.obtenerPorId(id);
         if (emp != null) {
             repoEmp.eliminar(id);
         } else {

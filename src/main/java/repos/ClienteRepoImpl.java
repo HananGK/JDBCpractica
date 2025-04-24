@@ -1,13 +1,10 @@
 package repos;
 
-import modelos.Cliente;
+import entidades.Cliente;
 import util.ConexionBD;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ClienteRepoImpl implements RepoCRUD<Cliente, Integer> {
     private Connection obtenerConexion() throws SQLException {
@@ -49,20 +46,19 @@ public class ClienteRepoImpl implements RepoCRUD<Cliente, Integer> {
     }
 
     @Override
-    public Cliente obtenerPorId(Integer id) {
-        Cliente cliente;
+    public Optional<Cliente> obtenerPorId(Integer id) {
         String query = "SELECT * FROM cliente WHERE codigo_cliente = ?";
-        try(PreparedStatement stmt = obtenerConexion().prepareStatement(query)){
+        try(PreparedStatement stmt = obtenerConexion().prepareStatement(query)) {
             stmt.setInt(1, id);
             ResultSet rs = stmt.executeQuery();
-            rs.next();
-            cliente = cargarCliente(rs);
-
+            if (rs.next()) {
+                return Optional.of(cargarCliente(rs));
+            } else {
+                return Optional.empty();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al obtener el cliente por ID", e);
         }
-        catch (Exception  e){
-            throw new RuntimeException("Error al obtener cliente por ID", e);
-        }
-        return cliente;
     }
 
     @Override

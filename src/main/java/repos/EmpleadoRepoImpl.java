@@ -1,6 +1,6 @@
 package repos;
 
-import modelos.Empleado;
+import entidades.Empleado;
 import util.ConexionBD;
 
 import java.sql.Connection;
@@ -9,6 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class EmpleadoRepoImpl implements RepoCRUD<Empleado, Integer>{
     private Connection obtenerConexion() throws SQLException {
@@ -32,19 +33,20 @@ public class EmpleadoRepoImpl implements RepoCRUD<Empleado, Integer>{
     }
 
     @Override
-    public Empleado obtenerPorId(Integer id) {
-        Empleado empleado;
+    public Optional<Empleado> obtenerPorId(Integer id) {
         String query = "SELECT * FROM empleado WHERE codigo_empleado = ?";
         try(PreparedStatement stmt = obtenerConexion().prepareStatement(query)) {
             stmt.setInt(1, id);
             ResultSet rs = stmt.executeQuery();
-            rs.next();
-            empleado = cargarEmpleado(rs);
+            if (rs.next()) {
+                return Optional.of(cargarEmpleado(rs));
+            } else {
+                return Optional.empty();
+            }
         }
         catch (Exception e) {
             throw new RuntimeException("Error al obtener el empleado por ID", e);
         }
-        return empleado;
     }
 
     @Override

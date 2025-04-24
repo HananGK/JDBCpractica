@@ -72,8 +72,9 @@ public class JDBCInicio {
                     3. Eliminar cliente
                     4. Listar clientes
                     5. Listar clientes con su oficina
-                    6. Salir""");
-            System.out.print("Elige una opción (1-6): ");
+                    6. Leer cliente
+                    7. Salir""");
+            System.out.print("Elige una opción (1-7): ");
 
             int opcion;
             try {
@@ -97,6 +98,9 @@ public class JDBCInicio {
                         clienteCtrl.listarClientesConOficina(repoCli);
                         break;
                     case 6:
+                        clienteCtrl.leerCliente(repoCli, sc);
+                        break;
+                    case 7:
                         System.out.println("¡Hasta pronto!");
                         salir = true;
                         break;
@@ -123,8 +127,9 @@ public class JDBCInicio {
                     2. Modificar empleado
                     3. Eliminar empleado
                     4. Listar empleados
-                    5. Salir""");
-            System.out.print("Elige una opción (1-5): ");
+                    5. Leer empleado
+                    6. Salir""");
+            System.out.print("Elige una opción (1-6): ");
 
             int opcion;
             try {
@@ -145,6 +150,9 @@ public class JDBCInicio {
                         empleadoCtrl.listarEmpleados(repoEmp);
                         break;
                     case 5:
+                        empleadoCtrl.leerEmpleado(repoEmp, sc);
+                        break;
+                    case 6:
                         System.out.println("¡Hasta pronto!");
                         salir = true;
                         break;
@@ -153,7 +161,6 @@ public class JDBCInicio {
                 }
             } catch (Exception e) {
                 System.out.println("Entrada inválida. Por favor introduce un número.");
-                e.printStackTrace();
                 sc.nextLine();
             }
         }
@@ -173,8 +180,9 @@ public class JDBCInicio {
                     2. Modificar oficina
                     3. Eliminar oficina
                     4. Listar oficinas
-                    5. Salir""");
-            System.out.print("Elige una opción (1-5): ");
+                    5. Leer oficina
+                    6. Salir""");
+            System.out.print("Elige una opción (1-6): ");
 
             int opcion;
             try {
@@ -195,6 +203,9 @@ public class JDBCInicio {
                         oficinaCtrl.listarOficinas(repoOfi);
                         break;
                     case 5:
+                        oficinaCtrl.leerOficina(repoOfi, sc);
+                        break;
+                    case 6:
                         System.out.println("¡Hasta pronto!");
                         salir = true;
                         break;
@@ -203,7 +214,6 @@ public class JDBCInicio {
                 }
             } catch (Exception e) {
                 System.out.println("Entrada inválida. Por favor introduce un número.");
-                e.printStackTrace();
                 sc.nextLine();
             }
         }
