@@ -8,7 +8,10 @@ import java.util.Optional;
 import java.util.Scanner;
 
 public class OficinaCtrl {
-    public static void crearOficina(OficinaRepoImpl repoOfi, Scanner sc) {
+    private final Scanner sc = new Scanner(System.in);
+    private final OficinaRepoImpl repoOfi = new OficinaRepoImpl();
+
+    public String crearOficina() throws SQLException {
         Oficina nuevo = new Oficina();
         System.out.println("Código oficina: ");
         nuevo.setCodigoOficina(sc.nextLine());
@@ -34,10 +37,10 @@ public class OficinaCtrl {
         System.out.println("Linea direccion 2: ");
         nuevo.setLineaDireccion2(sc.nextLine());
 
-        repoOfi.crear(nuevo);
+        return repoOfi.guardar(nuevo);
     }
 
-    public void leerOficina(OficinaRepoImpl repoOfi, Scanner sc) throws SQLException {
+    public void leerOficina() throws SQLException {
         System.out.println("Introduzca el código de la oficina a buscar: ");
         String id = sc.nextLine();
         Optional<Oficina> oficina = repoOfi.obtenerPorId(id);
@@ -49,13 +52,13 @@ public class OficinaCtrl {
         }
     }
 
-    public static void modificarOficina(OficinaRepoImpl repoOfi, Scanner sc) {
+    public void modificarOficina() throws SQLException {
         System.out.println("------------- Modificar oficina ---------------");
         System.out.println("Código de la oficina a editar: ");
         String id  = sc.next();
         Optional<Oficina> oficina = repoOfi.obtenerPorId(id);
 
-        if (oficina != null) {
+        if (oficina.isPresent()) {
             Oficina ofi = oficina.get();
             System.out.println("Oficina encontrada: ");
             System.out.println("0 - Terminar las modificaciones");
@@ -102,26 +105,38 @@ public class OficinaCtrl {
                     flag = false;
                 }
             }
-            repoOfi.actualizar(ofi);
+            repoOfi.guardar(ofi);
             System.out.println("\nOficina modificada:");
             System.out.println(ofi.toFicha());
         }else {
-            System.out.println("No se encontró ningún empleado con ese código");
+            System.out.println("No se encontró ninguna oficina con el código " + id);
         }
     }
 
-    public static void eliminarOficina(OficinaRepoImpl repoOfi, Scanner sc) {
+    public void eliminarOficina() {
         System.out.println("Introduce el código de la oficina a eliminar: ");
         String id = sc.nextLine();
         Optional<Oficina> ofi = repoOfi.obtenerPorId(id);
-        if (ofi != null) {
+
+        if (ofi.isEmpty()){
+            System.out.println("Oficina no encontrada.");
+            return;
+        }
+
+        System.out.println("\nDatos de la oficina a eliminar: ");
+        System.out.println(ofi.get().toFicha());
+        System.out.println("----------------------------------");
+        System.out.println("¿Confimar borrado de la oficina? (S/N): ");
+        String confirmacion = sc.nextLine();
+
+        if (confirmacion.equalsIgnoreCase("S")){
             repoOfi.eliminar(id);
         } else {
-            System.out.println("No se encontró ninguna oficina con ese código.");
+            System.out.println("Operación cancelada." );
         }
     }
 
-    public static void listarOficinas(OficinaRepoImpl repoOfi) {
+    public void listarOficinas() {
         System.out.println("-------------- Lista de oficinas ---------------");
         repoOfi.listar().forEach(System.out::println);
     }

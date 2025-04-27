@@ -50,30 +50,40 @@ public class EmpleadoRepoImpl implements RepoCRUD<Empleado, Integer>{
     }
 
     @Override
-    public void crear(Empleado empleado) {
-        empleado.setCodigoEmpleado(listar().getLast().getCodigoEmpleado()+1);
-        String query = """
-                INSERT INTO empleado(codigo_empleado, nombre, apellido1, apellido2, extension, email, codigo_oficina, codigo_jefe, puesto)
+    public Integer guardar(Empleado empleado) throws SQLException {
+        String query;
+        String queryIns = """
+                INSERT INTO empleado(nombre, apellido1, apellido2, extension, email, codigo_oficina, codigo_jefe, puesto, codigo_empleado)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """;
 
+        String queryUpd = "UPDATE empleado SET nombre = ?, apellido1 = ?, apellido2 =?, extension = ?, email = ?, codigo_oficina = ?, codigo_jefe = ?, puesto = ? WHERE codigo_empleado = ? ";
+
+        if (empleado.getCodigoEmpleado() > 0) {
+            query = queryUpd;
+        } else {
+            query = queryIns;
+            empleado.setCodigoEmpleado(getUltimoCodigoEmpleado());
+        }
+
         try(PreparedStatement stmt = obtenerConexion().prepareStatement(query)){
-            stmt.setInt(1, empleado.getCodigoEmpleado());
-            stmt.setString(2, empleado.getNombre());
-            stmt.setString(3, empleado.getApellido1());
-            stmt.setString(4, empleado.getApellido2());
-            stmt.setString(5, empleado.getExtension());
-            stmt.setString(6, empleado.getEmail());
-            stmt.setString(7, empleado.getCodigoOficina());
-            stmt.setInt(8, empleado.getCodigoJefe());
-            stmt.setString(9, empleado.getPuesto());
+            stmt.setString(1, empleado.getNombre());
+            stmt.setString(2, empleado.getApellido1());
+            stmt.setString(3, empleado.getApellido2());
+            stmt.setString(4, empleado.getExtension());
+            stmt.setString(5, empleado.getEmail());
+            stmt.setString(6, empleado.getCodigoOficina());
+            stmt.setInt(7, empleado.getCodigoJefe());
+            stmt.setString(8, empleado.getPuesto());
+            stmt.setInt(9, empleado.getCodigoEmpleado());
 
             stmt.executeUpdate();
-            System.out.println("Empleado creado correctamente.");
+            System.out.println("Empleado guardado correctamente.");
         }
         catch (Exception e){
-            throw new RuntimeException("Error al crear el empleado", e);
+            throw new RuntimeException("Error al guardar el empleado", e);
         }
+        return empleado.getCodigoEmpleado();
     }
 
     @Override
@@ -89,27 +99,6 @@ public class EmpleadoRepoImpl implements RepoCRUD<Empleado, Integer>{
         }
     }
 
-    @Override
-    public void actualizar(Empleado empleado) {
-        String query = "UPDATE empleado SET nombre = ?, apellido1 = ?, apellido2 =?, extension = ?, email = ?, codigo_oficina = ?, codigo_jefe = ?, puesto = ? WHERE codigo_empleado = ? ";
-
-        try (PreparedStatement stmt = obtenerConexion().prepareStatement(query)){
-            stmt.setString(1, empleado.getNombre());
-            stmt.setString(2, empleado.getApellido1());
-            stmt.setString(3, empleado.getApellido2());
-            stmt.setString(4, empleado.getExtension());
-            stmt.setString(5, empleado.getEmail());
-            stmt.setString(6, empleado.getCodigoOficina());
-            stmt.setInt(7, empleado.getCodigoJefe());
-            stmt.setString(8, empleado.getPuesto());
-            stmt.setInt(9, empleado.getCodigoEmpleado());
-            stmt.executeUpdate();
-            System.out.println("Empleado actualizado correctamente.");
-        }
-        catch (Exception e){
-            throw new RuntimeException("Error al actualizar el empleado", e);
-        }
-    }
 
     private Empleado cargarEmpleado(ResultSet rs) throws SQLException {
         Empleado empleado = new Empleado();
@@ -123,5 +112,17 @@ public class EmpleadoRepoImpl implements RepoCRUD<Empleado, Integer>{
         empleado.setCodigoJefe(rs.getObject("codigo_jefe") != null ? rs.getInt("codigo_jefe") : null);
         empleado.setPuesto(rs.getString("puesto") != null ? rs.getString("puesto") : null);
         return empleado;
+    }
+
+    private Integer getUltimoCodigoEmpleado() throws SQLException {
+        String query = "SELECT MAX(codigo_empleado) FROM empleado";
+        try(PreparedStatement stmt = obtenerConexion().prepareStatement(query);
+            ResultSet rs = stmt.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1) + 1;
+            } else {
+                return 1;
+            }
+        }
     }
 }

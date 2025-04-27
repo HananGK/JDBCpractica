@@ -48,11 +48,19 @@ public class OficinaRepoImpl implements RepoCRUD<Oficina, String> {
     }
 
     @Override
-    public void crear(Oficina oficina) {
-        String query = """
-                INSERT INTO oficina(codigo_oficina, ciudad, pais, region, codigo_postal, telefono, linea_direccion1, linea_direccion2)
+    public String guardar(Oficina oficina) throws SQLException {
+        String query;
+        String queryIns = """
+                INSERT INTO oficina(ciudad, pais, region, codigo_postal, telefono, linea_direccion1, linea_direccion2, codigo_oficina))
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 """;
+        String queryUpd = "UPDATE oficina SET codigo_oficina = ?, ciudad = ?, pais = ?, region = ?, codigo_postal = ?, telefono = ?, linea_direccion1 = ?, linea_direccion2 = ? WHERE codigo_oficina = ?";
+
+        if (oficina.getCodigoOficina() != null) {
+            query = queryUpd;
+        } else {
+            query = queryIns;
+        }
         try(PreparedStatement stmt = obtenerConexion().prepareStatement(query)){
             stmt.setString(1, oficina.getCodigoOficina());
             stmt.setString(2, oficina.getCiudad());
@@ -62,12 +70,14 @@ public class OficinaRepoImpl implements RepoCRUD<Oficina, String> {
             stmt.setString(6, oficina.getTelefono());
             stmt.setString(7, oficina.getLineaDireccion1());
             stmt.setString(8, oficina.getLineaDireccion2());
+            stmt.setString(9, oficina.getCodigoOficina());
             stmt.executeUpdate();
-            System.out.println("Oficina creada correctamente.");
+            System.out.println("Oficina guardada correctamente.");
         }
         catch (Exception e){
-            throw new RuntimeException("Error al crear la oficina", e);
+            throw new RuntimeException("Error al guardar la oficina", e);
         }
+        return oficina.getCodigoOficina();
     }
 
     @Override
@@ -82,26 +92,6 @@ public class OficinaRepoImpl implements RepoCRUD<Oficina, String> {
         }
     }
 
-    @Override
-    public void actualizar(Oficina oficina) {
-        String query = "UPDATE oficina SET codigo_oficina = ?, ciudad = ?, pais = ?, region = ?, codigo_postal = ?, telefono = ?, linea_direccion1 = ?, linea_direccion2 = ? WHERE codigo_oficina = ?";
-        try(PreparedStatement stmt = obtenerConexion().prepareStatement(query)) {
-            stmt.setString(1, oficina.getCodigoOficina());
-            stmt.setString(2, oficina.getCiudad());
-            stmt.setString(3, oficina.getPais());
-            stmt.setString(4, oficina.getRegion());
-            stmt.setString(5, oficina.getCodigoPostal());
-            stmt.setString(6, oficina.getTelefono());
-            stmt.setString(7, oficina.getLineaDireccion1());
-            stmt.setString(8, oficina.getLineaDireccion2());
-            stmt.setString(9, oficina.getCodigoOficina());
-            stmt.executeUpdate();
-            System.out.println("Oficina actualizada correctamente.");
-        }
-        catch (Exception e){
-            throw new RuntimeException("Error al actualizar la oficina", e);
-        }
-    }
 
     private Oficina cargarOficina(ResultSet rs) throws SQLException {
         Oficina oficina = new Oficina();
@@ -115,6 +105,7 @@ public class OficinaRepoImpl implements RepoCRUD<Oficina, String> {
         oficina.setLineaDireccion2(rs.getString("linea_direccion2"));
         return oficina;
     }
+
 }
 
 

@@ -9,23 +9,18 @@ import java.util.Scanner;
 
 public class JDBCInicio {
     public static void main(String[] args){
-        Scanner sc = new Scanner(System.in);
 
         ClienteCtrl clienteCtrl = new ClienteCtrl();
-        ClienteRepoImpl repoCli = new ClienteRepoImpl();
-
-
         EmpleadoCtrl empleadoCtrl = new EmpleadoCtrl();
-        EmpleadoRepoImpl repoEmp = new EmpleadoRepoImpl();
-
         OficinaCtrl oficinaCtrl = new OficinaCtrl();
-        OficinaRepoImpl repoOfi = new OficinaRepoImpl();
 
-        elegirMenu(sc, clienteCtrl, repoCli, empleadoCtrl, repoEmp, oficinaCtrl, repoOfi);
+        elegirMenu(clienteCtrl, empleadoCtrl, oficinaCtrl);
     }
 
 
-    public static void elegirMenu(Scanner sc, ClienteCtrl clienteCtrl, ClienteRepoImpl repoCli, EmpleadoCtrl empleadoCtrl, EmpleadoRepoImpl repoEmp, OficinaCtrl oficinaCtrl, OficinaRepoImpl repoOfi) {
+    public static void elegirMenu(ClienteCtrl clienteCtrl, EmpleadoCtrl empleadoCtrl, OficinaCtrl oficinaCtrl) {
+        Scanner sc = new Scanner(System.in);
+
         System.out.println("=========================================");
         System.out.println("Bienvenido a la aplicación de jardinería");
         System.out.println("=========================================");
@@ -41,13 +36,13 @@ public class JDBCInicio {
         sc.nextLine();
         switch(opcion){
             case 1:
-                menuClientes(clienteCtrl, repoCli, sc);
+                menuClientes(clienteCtrl);
                 break;
             case 2:
-                menuEmpleados(empleadoCtrl, repoEmp, sc);
+                menuEmpleados(empleadoCtrl);
                 break;
             case 3:
-                menuOficinas(oficinaCtrl, repoOfi, sc);
+                menuOficinas(oficinaCtrl);
                 break;
             case 4:
                 System.out.println("¡Hasta pronto!");
@@ -59,7 +54,8 @@ public class JDBCInicio {
     }
 
 
-    public static void menuClientes(ClienteCtrl clienteCtrl, ClienteRepoImpl repoCli, Scanner sc) {
+    public static void menuClientes(ClienteCtrl clienteCtrl) {
+        Scanner sc = new Scanner(System.in);
         boolean salir = false;
 
         System.out.println("Gestión de clientes");
@@ -83,22 +79,22 @@ public class JDBCInicio {
 
                 switch (opcion) {
                     case 1:
-                        clienteCtrl.crearCliente(repoCli, sc);
+                        clienteCtrl.crearCliente();
                         break;
                     case 2:
-                        clienteCtrl.modificarCliente(repoCli, sc);
+                        clienteCtrl.modificarCliente();
                         break;
                     case 3:
-                        clienteCtrl.eliminarCliente(repoCli, sc);
+                        clienteCtrl.eliminarCliente();
                         break;
                     case 4:
-                        clienteCtrl.listarClientes(repoCli);
+                        clienteCtrl.listarClientes();
                         break;
                     case 5:
-                        clienteCtrl.listarClientesConOficina(repoCli);
+                        clienteCtrl.listarClientesConOficina();
                         break;
                     case 6:
-                        clienteCtrl.leerCliente(repoCli, sc);
+                        clienteCtrl.leerCliente();
                         break;
                     case 7:
                         System.out.println("¡Hasta pronto!");
@@ -115,7 +111,8 @@ public class JDBCInicio {
     }
 
 
-    public static void menuEmpleados(EmpleadoCtrl empleadoCtrl, EmpleadoRepoImpl repoEmp, Scanner sc) {
+    public static void menuEmpleados(EmpleadoCtrl empleadoCtrl) {
+        Scanner sc = new Scanner(System.in);
         boolean salir = false;
 
         System.out.println("Gestión de empleados");
@@ -138,19 +135,19 @@ public class JDBCInicio {
 
                 switch (opcion) {
                     case 1:
-                        empleadoCtrl.crearEmpleado(repoEmp, sc);
+                        empleadoCtrl.crearEmpleado();
                         break;
                     case 2:
-                        empleadoCtrl.modificarEmpleado(repoEmp, sc);
+                        empleadoCtrl.modificarEmpleado();
                         break;
                     case 3:
-                        empleadoCtrl.eliminarEmpleado(repoEmp, sc);
+                        empleadoCtrl.eliminarEmpleado();
                         break;
                     case 4:
-                        empleadoCtrl.listarEmpleados(repoEmp);
+                        empleadoCtrl.listarEmpleados();
                         break;
                     case 5:
-                        empleadoCtrl.leerEmpleado(repoEmp, sc);
+                        empleadoCtrl.leerEmpleado();
                         break;
                     case 6:
                         System.out.println("¡Hasta pronto!");
@@ -168,7 +165,8 @@ public class JDBCInicio {
     }
 
 
-    public static void menuOficinas(OficinaCtrl oficinaCtrl, OficinaRepoImpl repoOfi, Scanner sc) {
+    public static void menuOficinas(OficinaCtrl oficinaCtrl) {
+        Scanner sc = new Scanner(System.in);
         boolean salir = false;
 
         System.out.println("Gestión de oficinas");
@@ -191,19 +189,19 @@ public class JDBCInicio {
 
                 switch (opcion) {
                     case 1:
-                        oficinaCtrl.crearOficina(repoOfi, sc);
+                        oficinaCtrl.crearOficina();
                         break;
                     case 2:
-                        oficinaCtrl.modificarOficina(repoOfi, sc);
+                        oficinaCtrl.modificarOficina();
                         break;
                     case 3:
-                        oficinaCtrl.eliminarOficina(repoOfi, sc);
+                        oficinaCtrl.eliminarOficina();
                         break;
                     case 4:
-                        oficinaCtrl.listarOficinas(repoOfi);
+                        oficinaCtrl.listarOficinas();
                         break;
                     case 5:
-                        oficinaCtrl.leerOficina(repoOfi, sc);
+                        oficinaCtrl.leerOficina();
                         break;
                     case 6:
                         System.out.println("¡Hasta pronto!");

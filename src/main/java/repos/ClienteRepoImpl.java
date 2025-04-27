@@ -21,21 +21,6 @@ public class ClienteRepoImpl implements RepoCRUD<Cliente, Integer> {
 
             while (rs.next()) {
                 Cliente cliente = cargarCliente(rs);
-
-                int codigoEmpleadoRepVentas = rs.getInt("codigo_empleado_rep_ventas");
-                if (rs.wasNull()) {
-                    cliente.setCodigoEmpleadoRepVentas(null);
-                } else {
-                    cliente.setCodigoEmpleadoRepVentas(codigoEmpleadoRepVentas);
-                }
-
-                float limiteCredito = rs.getFloat("limite_credito");
-                if (rs.wasNull()) {
-                    cliente.setLimiteCredito(null);
-                } else {
-                    cliente.setLimiteCredito(limiteCredito);
-                }
-
                 clientes.add(cliente);
             }
         }
@@ -62,53 +47,15 @@ public class ClienteRepoImpl implements RepoCRUD<Cliente, Integer> {
     }
 
     @Override
-    public void crear(Cliente cliente) {
-        cliente.setCodigoCliente(listar().getLast().getCodigoCliente()+1);
-        String query = """
-        INSERT INTO cliente (codigo_cliente, nombre_cliente, nombre_contacto, apellido_contacto, telefono, fax, linea_direccion1, linea_direccion2, ciudad, region, pais, codigo_postal, codigo_empleado_rep_ventas, limite_credito)
+    public Integer guardar(Cliente cliente) throws SQLException {
+        String query;
+        //cliente.setCodigoCliente(listar().getLast().getCodigoCliente()+1);
+        String queryIns = """
+        INSERT INTO cliente (nombre_cliente, nombre_contacto, apellido_contacto, telefono, fax, linea_direccion1, linea_direccion2, ciudad, region, pais, codigo_postal, codigo_empleado_rep_ventas, limite_credito, codigo_cliente)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """;
 
-        try (PreparedStatement stmt = obtenerConexion().prepareStatement(query)) {
-            stmt.setInt(1, cliente.getCodigoCliente());
-            stmt.setString(2, cliente.getNombreCliente());
-            stmt.setString(3, cliente.getNombreContacto());
-            stmt.setString(4, cliente.getApellidoContacto());
-            stmt.setString(5, cliente.getTelefono());
-            stmt.setString(6, cliente.getFax());
-            stmt.setString(7, cliente.getLineaDireccion1());
-            stmt.setString(8, cliente.getLineaDireccion2());
-            stmt.setString(9, cliente.getCiudad());
-            stmt.setString(10, cliente.getRegion());
-            stmt.setString(11, cliente.getPais());
-            stmt.setString(12, cliente.getCodigoPostal());
-            stmt.setInt(13, cliente.getCodigoEmpleadoRepVentas());
-            stmt.setDouble(14, cliente.getLimiteCredito());
-
-
-            stmt.executeUpdate();
-            System.out.println("Cliente creado correctamente.");
-        } catch (SQLException e) {
-            throw new RuntimeException("Error al crear el cliente", e);
-        }
-    }
-
-    @Override
-    public void eliminar(Integer id) {
-        String query = "DELETE FROM cliente WHERE codigo_cliente = ?";
-
-        try (PreparedStatement stmt = obtenerConexion().prepareStatement(query)) {
-            stmt.setInt(1, id);
-            stmt.executeUpdate();
-            System.out.println("Cliente eliminado correctamente.");
-        } catch (SQLException e) {
-            throw new RuntimeException("Error al eliminar el cliente", e);
-        }
-    }
-
-    @Override
-    public void actualizar(Cliente cliente) {
-        String query = "UPDATE cliente SET " +
+        String queryUpd = "UPDATE cliente SET " +
                 "nombre_cliente = ?, " +
                 "nombre_contacto = ?, " +
                 "apellido_contacto = ?, " +
@@ -124,6 +71,13 @@ public class ClienteRepoImpl implements RepoCRUD<Cliente, Integer> {
                 "limite_credito = ? " +
                 "WHERE codigo_cliente = ?";
 
+        if (cliente.getCodigoCliente() > 0) {
+            query = queryUpd;
+        } else {
+            query = queryIns;
+            cliente.setCodigoCliente(getUltimoCodigoCliente());
+        }
+
         try (PreparedStatement stmt = obtenerConexion().prepareStatement(query)) {
             stmt.setString(1, cliente.getNombreCliente());
             stmt.setString(2, cliente.getNombreContacto());
@@ -138,13 +92,26 @@ public class ClienteRepoImpl implements RepoCRUD<Cliente, Integer> {
             stmt.setString(11, cliente.getCodigoPostal());
             stmt.setInt(12, cliente.getCodigoEmpleadoRepVentas());
             stmt.setDouble(13, cliente.getLimiteCredito());
-            stmt.setInt(14, cliente.getCodigoCliente());  // <- el WHERE
+            stmt.setInt(14, cliente.getCodigoCliente());
 
             stmt.executeUpdate();
-            System.out.println("Cliente actualizado correctamente en la base de datos.");
-
+            System.out.println("Cliente guardado correctamente.");
         } catch (SQLException e) {
-            throw new RuntimeException("Error al actualizar el cliente", e);
+            throw new RuntimeException("Error al guardar el cliente", e);
+        }
+        return cliente.getCodigoCliente();
+    }
+
+    @Override
+    public void eliminar(Integer id) {
+        String query = "DELETE FROM cliente WHERE codigo_cliente = ?";
+
+        try (PreparedStatement stmt = obtenerConexion().prepareStatement(query)) {
+            stmt.setInt(1, id);
+            stmt.executeUpdate();
+            System.out.println("Cliente eliminado correctamente.");
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al eliminar el cliente", e);
         }
     }
 
@@ -218,5 +185,17 @@ public class ClienteRepoImpl implements RepoCRUD<Cliente, Integer> {
             }
         }
         return listaFichasClientes;
+    }
+
+    private Integer getUltimoCodigoCliente() throws SQLException {
+        String query = "SELECT MAX(codigo_cliente) FROM cliente";
+        try (Statement stmt = obtenerConexion().createStatement()) {
+            ResultSet rs = stmt.executeQuery(query);
+            if (rs.next()) {
+                return rs.getInt(1) + 1;
+            } else {
+                return 1;
+            }
+        }
     }
 }

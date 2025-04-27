@@ -9,7 +9,10 @@ import java.util.Scanner;
 
 public class EmpleadoCtrl {
 
-    public static void crearEmpleado(EmpleadoRepoImpl repoEmp, Scanner sc) {
+    private final Scanner sc = new Scanner(System.in);
+    private final EmpleadoRepoImpl repoEmp = new EmpleadoRepoImpl();
+
+    public Integer crearEmpleado() throws SQLException{
         Empleado nuevo =  new Empleado();
         System.out.println("Nombre del empleado: ");
         nuevo.setNombre(sc.nextLine());
@@ -36,10 +39,10 @@ public class EmpleadoCtrl {
         System.out.println("Puesto: ");
         nuevo.setPuesto(sc.nextLine());
 
-        repoEmp.crear(nuevo);
+        return repoEmp.guardar(nuevo);
     }
 
-    public void leerEmpleado(EmpleadoRepoImpl repoEmp, Scanner sc) throws SQLException {
+    public void leerEmpleado() throws SQLException {
         System.out.println("Introduzca el código del empleado a buscar: ");
         int id = sc.nextInt();
         sc.nextLine();
@@ -52,14 +55,14 @@ public class EmpleadoCtrl {
         }
     }
 
-    public static void modificarEmpleado(EmpleadoRepoImpl repoEmp, Scanner sc) {
+    public void modificarEmpleado() throws SQLException {
         System.out.println("-------------- Modificar empleado ------------");
         System.out.println("Código del empleado a editar: ");
         int id =  sc.nextInt();
         sc.nextLine();
         Optional<Empleado> empleado = repoEmp.obtenerPorId(id);
 
-        if (empleado != null) {
+        if (empleado.isPresent()) {
             Empleado emp = empleado.get();
             System.out.println("Empleado encontrado: ");
             System.out.println("0 - Terminar las modificaciones");
@@ -109,27 +112,39 @@ public class EmpleadoCtrl {
                     flag = false;
                 }
             }
-            repoEmp.actualizar(emp);
+            repoEmp.guardar(emp);
             System.out.println("\nEmpleado modificado:");
             System.out.println(emp.toFicha());
         } else {
-            System.out.println("No se encontró ningún empleado con ese código");
+            System.out.println("No se encontró ningún empleado con el código " + id);
         }
     }
 
-    public static void eliminarEmpleado(EmpleadoRepoImpl repoEmp, Scanner sc) {
+    public void eliminarEmpleado() {
         System.out.println("Introduce el código del empleado a eliminar: ");
         int id = sc.nextInt();
         sc.nextLine();
         Optional<Empleado> emp = repoEmp.obtenerPorId(id);
-        if (emp != null) {
+
+        if (emp.isEmpty()){
+            System.out.println("Empleado no encontrado");
+            return;
+        }
+
+        System.out.println("\nDatos del empleado a eliminar: ");
+        System.out.println(emp.get().toFicha());
+        System.out.println("---------------------------------");
+        System.out.println("¿Confirmar borrado del empleado? (S/N): ");
+        String confirmacion = sc.nextLine();
+
+        if (confirmacion.equalsIgnoreCase("S")){
             repoEmp.eliminar(id);
         } else {
-            System.out.println("No se encontró ningún empleado con ese código.");
+            System.out.println("operación cancelada.");
         }
     }
 
-    public static void listarEmpleados(EmpleadoRepoImpl repoEmp) {
+    public void listarEmpleados() {
         System.out.println("------------- Lista de empleados -------------");
         repoEmp.listar().forEach(System.out::println);
     }

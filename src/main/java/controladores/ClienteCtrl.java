@@ -9,8 +9,10 @@ import java.util.Optional;
 import java.util.Scanner;
 
 public class ClienteCtrl {
+    private final Scanner sc = new Scanner(System.in);
+    private final ClienteRepoImpl repoCli = new ClienteRepoImpl();
 
-    public static void crearCliente(ClienteRepoImpl repoCli,  Scanner sc){
+    public Integer crearCliente() throws SQLException {
         Cliente nuevo = new Cliente();
         System.out.print("Nombre del cliente: ");
         nuevo.setNombreCliente(sc.nextLine());
@@ -53,10 +55,10 @@ public class ClienteCtrl {
         nuevo.setLimiteCredito(sc.nextFloat());
         sc.nextLine();
 
-        repoCli.crear(nuevo);
+        return repoCli.guardar(nuevo);
     }
 
-    public void leerCliente(ClienteRepoImpl repoCli, Scanner sc) throws SQLException {
+    public void leerCliente() throws SQLException {
         System.out.println("Introduzca el código del cliente a buscar: ");
         int id = sc.nextInt();
         sc.nextLine();
@@ -70,13 +72,13 @@ public class ClienteCtrl {
         }
     }
 
-    public static void modificarCliente(ClienteRepoImpl repoCli, Scanner sc){
+    public void modificarCliente() throws SQLException {
         System.out.println("-------------- Modificar cliente --------------");
         System.out.println("Código del cliente a editar: ");
         int id = sc.nextInt();
         sc.nextLine();
         Optional<Cliente> cliente = repoCli.obtenerPorId(id);
-        if (cliente != null) {
+        if (cliente.isPresent()) {
             Cliente cli = cliente.get();
             System.out.println("Cliente encontrado:");
             System.out.println("0 - Terminar las modificaciones");
@@ -141,40 +143,52 @@ public class ClienteCtrl {
                     flag = false;
                 }
             }
-            repoCli.actualizar(cli);
+            repoCli.guardar(cli);
             System.out.println("\nCliente modificado:");
             System.out.println(cli.toFicha());
 
         } else {
-            System.out.println("No se encontró ningún cliente con ese código.");
+            System.out.println("No se encontró ningún cliente con el código " + id);
         }
     }
 
-    public static void eliminarCliente(ClienteRepoImpl repoCli, Scanner sc){
+    public void eliminarCliente(){
         System.out.print("Introduce el código del cliente a eliminar: ");
         int id = sc.nextInt();
         sc.nextLine();
         Optional<Cliente> cli = repoCli.obtenerPorId(id);
-        if (cli != null) {
+
+        if (cli.isEmpty()){
+            System.out.println("Cliente no encontrado.");
+            return;
+        }
+
+        System.out.println("\nDatos del cliente a eliminar: ");
+        System.out.println(cli.get().toFicha());
+        System.out.println("-------------------------------");
+        System.out.println("¿Confirmar borrado del cliente? (S/N): ");
+        String confirmacion = sc.nextLine();
+
+        if (confirmacion.equalsIgnoreCase("S")){
             repoCli.eliminar(id);
         } else {
-            System.out.println("No se encontró ningún cliente con ese código.");
+            System.out.println("Operación cancelada.");
         }
     }
 
-    public static void listarClientes(ClienteRepoImpl repoCli){
+    public void listarClientes(){
         System.out.println("-------------- Lista de clientes ------------");
         repoCli.listar().forEach(System.out::println);
     }
 
-    public static void listarClientesConOficina(ClienteRepoImpl repoCli) throws SQLException {
+    public void listarClientesConOficina() throws SQLException {
         System.out.println("-------------- Lista de clientes con la oficina de ventas ------------");
         repoCli.listaDeClientesConOficina().forEach(System.out::println);
         System.out.println("-------------- Ficha de clientes con la  oficina de ventas ------------");
         imprimirFichasClientes(repoCli.fichaClienteConOficina());
     }
 
-    public static void imprimirFichasClientes(Map<Integer, Map<String, String>> fichas) {
+    public void imprimirFichasClientes(Map<Integer, Map<String, String>> fichas) {
         System.out.println("=== LISTADO DE CLIENTES CON OFICINA ASOCIADA ===");
 
         for (Map.Entry<Integer, Map<String, String>> entrada : fichas.entrySet()) {
